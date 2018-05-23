@@ -1,8 +1,3 @@
-"""
-Shows basic usage of the Gmail API.
-
-Lists the user's Gmail labels.
-"""
 from __future__ import print_function
 from apiclient.discovery import build
 from httplib2 import Http
@@ -13,7 +8,6 @@ import base64
 import email
 
 
-# Setup the Gmail API
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
 store = file.Storage('credentials.json')
 creds = store.get()
@@ -22,13 +16,9 @@ if not creds or creds.invalid:
     creds = tools.run_flow(flow, store)
 service = build('gmail', 'v1', http=creds.authorize(Http()))
 
-# Call the Gmail API
-#results = service.users().labels().list(userId='me').execute()
-#response = service.users().messages().list(userId='me',q='').execute()
 
 query = 'webmaster@tedepasa.com'
 user_id = 'me'
-
 
 
 def getMessagesid(service, user_id, query= ''):
