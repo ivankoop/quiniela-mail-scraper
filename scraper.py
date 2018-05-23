@@ -7,6 +7,7 @@ import requests
 import base64
 import email
 import datetime
+from io import StringIO
 
 class MailItem():
     def __init__(self, id, message):
@@ -19,6 +20,7 @@ class SorteoTable():
         self.sorteo2 = ""
         self.sorteo4 = ""
         self.sorteo5 = ""
+
 
 def getMessages(service, user_id, query= ''):
     response = service.users().messages().list(userId=user_id,q=query).execute()
@@ -57,6 +59,25 @@ def messagesFilter(sorteo_table,stored_messages):
             sorteo_table.sorteo5 = messages.message
 
 
+def sorteosFilter(sorteo_table):
+
+    decoded_str = sorteo_table.sorteo2.decode("utf-8")
+
+    sorteo_list_str = decoded_str.split("(190.112.211.242)",1)[1]
+
+    i = 0;
+    sio = StringIO(sorteo_list_str)
+    for sline in sio.readlines():
+
+        rules = [i != 0,i != 1,i != 15,i != 16]
+
+        if all(rules):
+
+            print(sline)
+
+        i += 1
+
+
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
 store = file.Storage('credentials.json')
 creds = store.get()
@@ -72,4 +93,4 @@ sorteo_table = SorteoTable()
 
 messagesFilter(sorteo_table,stored_messages)
 
-print(sorteo_table.sorteo2)
+sorteosFilter(sorteo_table)
