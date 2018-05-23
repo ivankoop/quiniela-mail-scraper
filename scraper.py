@@ -21,6 +21,10 @@ class SorteoTable():
         self.sorteo4 = ""
         self.sorteo5 = ""
 
+class TableItem():
+    def __init__(self,key,value):
+        self.key = key
+        self.value = value
 
 def getMessages(service, user_id, query= ''):
     response = service.users().messages().list(userId=user_id,q=query).execute()
@@ -44,7 +48,6 @@ def getMessages(service, user_id, query= ''):
 def messagesFilter(sorteo_table,stored_messages):
 
     for messages in stored_messages:
-        print(messages.id)
 
         if b"sorteo:2" in messages.message:
             print('success sorteo 2')
@@ -59,24 +62,27 @@ def messagesFilter(sorteo_table,stored_messages):
             sorteo_table.sorteo5 = messages.message
 
 
-def sorteosFilter(sorteo_table):
+def sorteosFilter(sorteo_message):
 
-    decoded_str = sorteo_table.sorteo2.decode("utf-8")
+    decoded_str = sorteo_message.decode("utf-8")
 
     sorteo_list_str = decoded_str.split("(190.112.211.242)",1)[1]
+
+    key_value_data = []
 
     i = 0;
     sio = StringIO(sorteo_list_str)
     for sline in sio.readlines():
 
-        rules = [i != 0,i != 1,i != 15,i != 16]
+        #empty lines
+        rules = [i != 0,i != 1,i != 16]
 
         if all(rules):
-
-            print(sline)
+            key_value_data.append(TableItem(sline[:2],sline[-5:]))
 
         i += 1
 
+    return key_value_data
 
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
 store = file.Storage('credentials.json')
@@ -93,4 +99,11 @@ sorteo_table = SorteoTable()
 
 messagesFilter(sorteo_table,stored_messages)
 
-sorteosFilter(sorteo_table)
+if sorteo_table.sorteo2:
+    sorteo2_final_data = sorteosFilter(sorteo_table.sorteo2)
+if sorteo_table.sorteo4:
+    sorteo4_final_data = sorteosFilter(sorteo_table.sorteo4)
+if sorteo_table.sorteo5:
+    sorteo5_final_data = sorteosFilter(sorteo_table.sorteo5)
+
+#sorteo5_final_data = sorteosFilter(sorteo_table.sorteo5)
