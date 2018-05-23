@@ -9,29 +9,52 @@ import email
 import datetime
 
 class MailItem():
-
     def __init__(self, id, message):
         self.id = id
         self.message = message
+
+
+class SorteoTable():
+    def __init__(self):
+        self.sorteo2 = ""
+        self.sorteo4 = ""
+        self.sorteo5 = ""
 
 def getMessages(service, user_id, query= ''):
     response = service.users().messages().list(userId=user_id,q=query).execute()
     messages = []
 
+    now = datetime.datetime.now()
+
     for message in response['messages']:
 
         response = service.users().messages().get(userId=user_id, id=message['id'],format='raw').execute()
         msg_str = base64.urlsafe_b64decode(response['raw'].encode('ASCII'))
-        messages.append(MailItem(message['id'],msg_str))
+
+        day_str = ", " + str((now.day - 1))
+
+        if not day_str.encode() in msg_str:
+            messages.append(MailItem(message['id'],msg_str))
+
 
     return messages
 
-
-def messagesFilter(stored_messages):
+def messagesFilter(sorteo_table,stored_messages):
 
     for messages in stored_messages:
         print(messages.id)
 
+        if b"sorteo:2" in messages.message:
+            print('success sorteo 2')
+            sorteo_table.sorteo2 = messages.message
+
+        if b"sorteo:4" in messages.message:
+            print('success sorteo 4')
+            sorteo_table.sorteo4 = messages.message
+
+        if b"sorteo:5" in messages.message:
+            print('success sorteo 5')
+            sorteo_table.sorteo5 = messages.message
 
 
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
@@ -45,4 +68,8 @@ if not creds or creds.invalid:
 service = build('gmail', 'v1', http=creds.authorize(Http()))
 current_date = datetime.datetime.today().strftime('%Y-%m-%d')
 stored_messages = getMessages(service,'me','from:webmaster@tedepasa.com after:' + current_date)
-messagesFilter(stored_messages)
+sorteo_table = SorteoTable()
+
+messagesFilter(sorteo_table,stored_messages)
+
+print(sorteo_table.sorteo2)
