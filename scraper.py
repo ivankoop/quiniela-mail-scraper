@@ -46,9 +46,6 @@ def getMessages(service, user_id, query= ''):
 
         day_str = ", " + str((now.day - 1))
 
-        #hack just for testing TODO: remove for production
-        day_str = ", 22"
-
         if not day_str.encode() in msg_str:
             messages.append(MailItem(message['id'],msg_str))
 
@@ -103,12 +100,15 @@ if not creds or creds.invalid:
 
 service = build('gmail', 'v1', http=creds.authorize(Http()))
 current_date = datetime.datetime.today().strftime('%Y-%m-%d')
-#"2018-05-23"
-stored_messages = getMessages(service,'me','from:webmaster@tedepasa.com after:' + "2018-05-23")
+
+stored_messages = getMessages(service,'me','from:webmaster@tedepasa.com after:' + current_date)
 sorteo_table = SorteoTable()
 
 messagesFilter(sorteo_table,stored_messages)
 
+sorteo2_final_data = []
+sorteo4_final_data = []
+sorteo5_final_data = []
 
 if sorteo_table.sorteo2:
     sorteo2_final_data = sorteosFilter(sorteo_table.sorteo2)
@@ -118,5 +118,3 @@ if sorteo_table.sorteo5:
     sorteo5_final_data = sorteosFilter(sorteo_table.sorteo5)
 
 dbconnection.insert_sorteos(sorteo2_final_data,sorteo4_final_data,sorteo5_final_data)
-
-#sorteo5_final_data = sorteosFilter(sorteo_table.sorteo5)
