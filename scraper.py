@@ -8,6 +8,8 @@ import base64
 import email
 import datetime
 from io import StringIO
+import dbconnection
+
 
 class MailItem():
     def __init__(self, id, message):
@@ -26,6 +28,11 @@ class TableItem():
         self.key = key
         self.value = value
 
+    def __repr__(self):
+        return "TableItem key:%s value:%s" % (self.key, self.value)
+
+
+
 def getMessages(service, user_id, query= ''):
     response = service.users().messages().list(userId=user_id,q=query).execute()
     messages = []
@@ -39,9 +46,11 @@ def getMessages(service, user_id, query= ''):
 
         day_str = ", " + str((now.day - 1))
 
+        #hack just for testing TODO: remove for production
+        day_str = ", 22"
+
         if not day_str.encode() in msg_str:
             messages.append(MailItem(message['id'],msg_str))
-
 
     return messages
 
@@ -89,15 +98,17 @@ store = file.Storage('credentials.json')
 creds = store.get()
 
 if not creds or creds.invalid:
-    flow = client.flow_from_clientsecrets('client_secret.json', SCOPES)
+    flow = client.flow_from_clientsecrets('/Users/ivankoop/PythonProjects/quiniela-scraper/client_secret.json', SCOPES)
     creds = tools.run_flow(flow, store)
 
 service = build('gmail', 'v1', http=creds.authorize(Http()))
 current_date = datetime.datetime.today().strftime('%Y-%m-%d')
-stored_messages = getMessages(service,'me','from:webmaster@tedepasa.com after:' + current_date)
+#"2018-05-23"
+stored_messages = getMessages(service,'me','from:webmaster@tedepasa.com after:' + "2018-05-23")
 sorteo_table = SorteoTable()
 
 messagesFilter(sorteo_table,stored_messages)
+
 
 if sorteo_table.sorteo2:
     sorteo2_final_data = sorteosFilter(sorteo_table.sorteo2)
@@ -105,5 +116,7 @@ if sorteo_table.sorteo4:
     sorteo4_final_data = sorteosFilter(sorteo_table.sorteo4)
 if sorteo_table.sorteo5:
     sorteo5_final_data = sorteosFilter(sorteo_table.sorteo5)
+
+dbconnection.insert_sorteos(sorteo2_final_data,sorteo4_final_data,sorteo5_final_data)
 
 #sorteo5_final_data = sorteosFilter(sorteo_table.sorteo5)
