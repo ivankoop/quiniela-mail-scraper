@@ -9,7 +9,8 @@ import email
 import datetime
 from io import StringIO
 import dbconnection
-import KEYS
+from config import NOTIFICATION_APP_TOKEN
+from config import NOTIFICATION_USER_TOKEN
 
 
 class MailItem():
@@ -95,8 +96,8 @@ def pushNotification(type,message):
 
     url = "https://api.pushover.net/1/messages.json"
     payload = {
-        'token': KEYS.NOTIFICATION_APP_TOKEN,
-        'user': KEYS.NOTIFICATION_USER_TOKEN,
+        'token': NOTIFICATION_APP_TOKEN,
+        'user': NOTIFICATION_USER_TOKEN,
         'device': 'ios',
         'title': 'Quiniela Scraper',
         'message': type + ": " + message,
