@@ -9,6 +9,7 @@ import email
 import datetime
 from io import StringIO
 import dbconnection
+import KEYS
 
 
 class MailItem():
@@ -90,6 +91,20 @@ def sorteosFilter(sorteo_message):
 
     return key_value_data
 
+def pushNotification(type,message):
+
+    url = "https://api.pushover.net/1/messages.json"
+    payload = {
+        'token': KEYS.NOTIFICATION_APP_TOKEN,
+        'user': KEYS.NOTIFICATION_USER_TOKEN,
+        'device': 'ios',
+        'title': 'Quiniela Scraper',
+        'message': type + ": " + message,
+    }
+
+    requests.post(url, data=payload)
+
+
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
 store = file.Storage('credentials.json')
 creds = store.get()
@@ -117,4 +132,15 @@ if sorteo_table.sorteo4:
 if sorteo_table.sorteo5:
     sorteo5_final_data = sorteosFilter(sorteo_table.sorteo5)
 
-dbconnection.insert_sorteos(sorteo2_final_data,sorteo4_final_data,sorteo5_final_data)
+if not sorteo2_final_data:
+    pushNotification("Error","Sorteo2 not inserted, verify e-mail for errors.")
+
+if not sorteo4_final_data:
+    pushNotification("Error","Sorteo4 not inserted, verify e-mail for errors.")
+
+if not sorteo5_final_data:
+    pushNotification("Error","Sorteo5 not inserted, verify e-mail for errors.")
+
+if sorteo2_final_data and sorteo4_final_data and sorteo5_final_data:
+    pushNotification("Success","Lottery data inserted successfully! ;)")
+    dbconnection.insert_sorteos(sorteo2_final_data,sorteo4_final_data,sorteo5_final_data)
