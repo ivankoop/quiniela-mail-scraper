@@ -143,5 +143,8 @@ if not sorteo5_final_data:
     pushNotification("Error","Sorteo5 not inserted, verify e-mail for errors.")
 
 if sorteo2_final_data and sorteo4_final_data and sorteo5_final_data:
-    pushNotification("Success","Lottery data inserted successfully! ;)")
-    dbconnection.insert_sorteos(sorteo2_final_data,sorteo4_final_data,sorteo5_final_data)
+    try:
+        dbconnection.insert_sorteos(sorteo2_final_data,sorteo4_final_data,sorteo5_final_data)
+        pushNotification("Success","Lottery data inserted successfully! ;)")
+    except MySQLdb.Error as e:
+        pushNotification("Error","Mysql error.")
