@@ -6,6 +6,7 @@ from apiclient import errors
 import requests
 import base64
 import email
+import MySQLdb
 import datetime
 from io import StringIO
 import dbconnection
