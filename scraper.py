@@ -136,6 +136,8 @@ if sorteo_table.sorteo5:
 
 if not sorteo2_final_data:
     pushNotification("Error","Sorteo2 not inserted, verify e-mail for errors.")
+    for x in range(1, 15):
+        sorteo2_final_data.append(TableItem(x,"-"))
 
 if not sorteo4_final_data:
     pushNotification("Error","Sorteo4 not inserted, verify e-mail for errors.")
@@ -144,6 +146,7 @@ if not sorteo5_final_data:
     pushNotification("Error","Sorteo5 not inserted, verify e-mail for errors.")
 
 if sorteo2_final_data and sorteo4_final_data and sorteo5_final_data:
+
     try:
         dbconnection.insert_sorteos(sorteo2_final_data,sorteo4_final_data,sorteo5_final_data)
         pushNotification("Success","Lottery data inserted successfully! ;)")
