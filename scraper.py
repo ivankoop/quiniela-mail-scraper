@@ -8,6 +8,7 @@ import base64
 import email
 import MySQLdb
 import datetime
+from datetime import timedelta
 from io import StringIO
 import dbconnection
 from config import NOTIFICATION_APP_TOKEN
@@ -47,7 +48,9 @@ def getMessages(service, user_id, query= ''):
         response = service.users().messages().get(userId=user_id, id=message['id'],format='raw').execute()
         msg_str = base64.urlsafe_b64decode(response['raw'].encode('ASCII'))
 
-        day_str = ", " + str((now.day - 1))
+        last_day = now - timedelta(days=1)
+
+        day_str = ", " + str(last_day.day)
 
         if not day_str.encode() in msg_str:
             messages.append(MailItem(message['id'],msg_str))
